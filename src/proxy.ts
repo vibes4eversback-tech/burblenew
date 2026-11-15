@@ -1,20 +1,15 @@
-import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+import { NextResponse, type NextRequest } from "next/server";
+import { updateSession } from "@/lib/supabase/proxy";
 
-const isPublicRoute = createRouteMatcher(["/sign-in(.*)", "/sign-up(.*)", "/api/uploadthing"]);
+export async function proxy(request: NextRequest) {
+	// The original clone's Clerk/Prisma routes are intentionally retired; keep old
+	// bookmarks from landing on an orphaned page while people move to Burble.
+	if (["/servers", "/invite", "/rome", "/sign-in", "/sign-up"].some((path) => request.nextUrl.pathname.startsWith(path))) {
+		return NextResponse.redirect(new URL("/", request.url));
+	}
+	return updateSession(request);
+}
 
-// protect all routes except the public one
-export default clerkMiddleware(
-	async (auth, request) => {
-		if (!isPublicRoute(request)) {
-			await auth.protect();
-		}
-	},
-	// { debug: process.env.NODE_ENV === "development" }
-);
-
-// export const config = {
-// 	// The following matcher runs middleware on all routes
-// 	// except static assets. + websocket routes
-// 	matcher: ["/((?!.*\\..*|_next).*)", "/", "/(api|trpc)(.*)"],
-// };
-export const config = { matcher: ["/((?!.*\\..*|_next|ws).*)", "/", "/(api|trpc)(.*)"] };
+export const config = {
+	matcher: ["/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)"],
+};
