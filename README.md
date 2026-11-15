@@ -1,6 +1,6 @@
 # Burble
 
-Burble is a focused, real-time place for group conversations, spaces, channels, and private file sharing. It is a complete rebrand and backend replacement of the original Discord-style starter: Clerk, Prisma, and UploadThing are no longer part of the Burble app path.
+Burble is a focused, real-time place for group conversations, spaces, channels, and private file sharing, powered by Supabase from sign-in through storage.
 
 ## What is included
 

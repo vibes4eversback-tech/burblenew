@@ -2,8 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { updateSession } from "@/lib/supabase/proxy";
 
 export async function proxy(request: NextRequest) {
-	// The original clone's Clerk/Prisma routes are intentionally retired; keep old
-	// bookmarks from landing on an orphaned page while people move to Burble.
+	// Keep bookmarks from the original clone from landing on an orphaned page.
 	if (["/servers", "/invite", "/rome", "/sign-in", "/sign-up"].some((path) => request.nextUrl.pathname.startsWith(path))) {
 		return NextResponse.redirect(new URL("/", request.url));
 	}
