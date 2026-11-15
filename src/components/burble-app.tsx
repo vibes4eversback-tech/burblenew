@@ -8,7 +8,7 @@ import type { Session } from "@supabase/supabase-js";
 type Profile = { id: string; handle: string; display_name: string };
 type Space = { id: string; name: string; description: string; invite_code: string };
 type Channel = { id: string; name: string; topic: string; kind: "chat" | "announcements" };
-type Message = { id: string; body: string; attachment_path: string | null; attachment_name: string | null; created_at: string; author: Pick<Profile, "handle" | "display_name"> | null };
+type Message = { id: string; body: string; attachment_path: string | null; attachment_name: string | null; created_at: string; author: Pick<Profile, "handle" | "display_name"> | Pick<Profile, "handle" | "display_name">[] | null };
 
 const supabase = createClient();
 
@@ -111,8 +111,9 @@ function Workspace(props: { profile: Profile | null; spaces: Space[]; channels: 
 }
 
 function MessageItem({ message }: { message: Message }) {
+	const author = Array.isArray(message.author) ? message.author[0] : message.author;
 	const [url, setUrl] = useState<string | null>(null);
 	useEffect(() => { if (!message.attachment_path) return; supabase.storage.from("burble-files").createSignedUrl(message.attachment_path, 60 * 60).then(({ data }) => setUrl(data?.signedUrl ?? null)); }, [message.attachment_path]);
 	const time = useMemo(() => new Intl.DateTimeFormat(undefined, { hour: "numeric", minute: "2-digit" }).format(new Date(message.created_at)), [message.created_at]);
-	return <article className="message"><span className="avatar">{message.author?.display_name.slice(0, 1) ?? "?"}</span><div><div className="message-meta"><strong>{message.author?.display_name ?? "Burble member"}</strong><time>{time}</time></div>{message.body && <p>{message.body}</p>}{url && <a className="attachment" href={url} target="_blank" rel="noreferrer"><FileText size={17} />{message.attachment_name ?? "Attachment"}</a>}</div></article>;
+	return <article className="message"><span className="avatar">{author?.display_name.slice(0, 1) ?? "?"}</span><div><div className="message-meta"><strong>{author?.display_name ?? "Burble member"}</strong><time>{time}</time></div>{message.body && <p>{message.body}</p>}{url && <a className="attachment" href={url} target="_blank" rel="noreferrer"><FileText size={17} />{message.attachment_name ?? "Attachment"}</a>}</div></article>;
 }
